@@ -43,7 +43,7 @@ public class McAuthBungee extends Plugin implements Listener {
             dbUtils.getConnection();
             validDbConnection = dbUtils.isValid();
         } catch (SQLException ex) {
-            getLogger().throwing(McAuthBungee.class.getName(), "onEnable", ex);
+            ex.printStackTrace();
         } finally {
             if (!validDbConnection) {
                 getLogger().warning("Could not connect to database! Check '" +
@@ -90,7 +90,7 @@ public class McAuthBungee extends Plugin implements Listener {
 
                 getLogger().info(e.getConnection().getName() + " successfully requested an One-Time-Password");
             } catch (GeneralSecurityException | SQLException ex) {
-                getLogger().throwing(McAuthBungee.class.getName(), "onLogin", ex);
+                ex.printStackTrace();
                 getLogger().warning("Could not generate an One-Time-Password for " + e.getConnection().getName() +
                         " (" + e.getConnection().getUniqueId().toString() + ")");
 
