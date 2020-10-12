@@ -68,6 +68,12 @@ public class DatabaseUtils {
         if (!isValid()) {
             this.con = null;
 
+            try {
+                Class.forName("org.postgresql.Driver");
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+
             this.con = DriverManager.getConnection(this.url, this.user, this.password);
         }
 
