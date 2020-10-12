@@ -68,13 +68,6 @@ public class DatabaseUtils {
         if (!isValid()) {
             this.con = null;
 
-            try {
-                Class.forName("org.postgresql.Driver");
-            } catch (ClassNotFoundException ex) {
-                McAuthBungee.instance.getLogger().throwing(DatabaseUtils.class.getName(),
-                        "getConnection", ex);
-            }
-
             this.con = DriverManager.getConnection(this.url, this.user, this.password);
         }
 
