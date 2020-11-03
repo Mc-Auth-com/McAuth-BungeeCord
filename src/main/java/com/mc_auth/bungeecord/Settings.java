@@ -13,7 +13,7 @@ public class Settings {
             "Mc-Auth.com (BungeeCord Plugin)\n\n" +
                     "Support: https://Sprax.me/Discord\n" +
                     "Updates and Information:\n" +
-                    "Information for developers: https://github.com/Mc-Auth-com")
+                    "Information for developers: https://github.com/Mc-Auth-com/McAuth-BungeeCord")
             .withCommentEntry("PostgreSQL", "This plugins requires access to the same database as the backend");
 
     public static final ConfigEntry PSQL_HOST = config.createEntry(
