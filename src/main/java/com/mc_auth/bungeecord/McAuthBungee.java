@@ -1,5 +1,6 @@
 package com.mc_auth.bungeecord;
 
+import com.google.common.io.BaseEncoding;
 import com.j256.twofactorauth.TimeBasedOneTimePasswordUtil;
 import de.sprax2013.lime.bungeecord.LimeDevUtilityBungee;
 import net.md_5.bungee.api.ChatColor;
@@ -11,8 +12,11 @@ import net.md_5.bungee.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,7 +24,9 @@ public class McAuthBungee extends Plugin implements Listener {
     static McAuthBungee instance;
 
     private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final String secretSalt = TimeBasedOneTimePasswordUtil.generateBase32Secret();
 
+    private MessageDigest sha256;
     private DatabaseUtils dbUtils;
 
     @Override
@@ -70,7 +76,7 @@ public class McAuthBungee extends Plugin implements Listener {
 
                 // No? Generate a new one and store it inside the database
                 if (code == -1) {
-                    code = (int) TimeBasedOneTimePasswordUtil.generateCurrentNumber(TimeBasedOneTimePasswordUtil.generateBase32Secret());
+                    code = TimeBasedOneTimePasswordUtil.generateCurrentNumber(generateSecret(e.getConnection().getUniqueId()), 6);
 
                     dbUtils.setCode(e.getConnection().getUniqueId(), code);
                 }
@@ -133,5 +139,13 @@ public class McAuthBungee extends Plugin implements Listener {
         sb.insert(3, ' ');
 
         return sb.toString();
+    }
+
+    private String generateSecret(UUID uuid) throws NoSuchAlgorithmException {
+        if (sha256 == null) {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        }
+
+        return BaseEncoding.base32().encode(sha256.digest((uuid.toString() + secretSalt).getBytes()));
     }
 }
