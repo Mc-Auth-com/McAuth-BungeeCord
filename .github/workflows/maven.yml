@@ -46,6 +46,7 @@ jobs:
 
       # Run static code analysis
       - name: 'SonarCloud.io (static code analysis)'
+        if: ${{ env.SONAR_TOKEN != null }}
         run: 'mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
