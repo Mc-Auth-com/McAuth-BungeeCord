@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.UUID;
@@ -68,23 +69,17 @@ public class McAuthBungee extends Plugin implements Listener {
 
         this.pool.execute(() -> {
             try {
-                // Update client in database
                 this.dbUtils.updateAccount(e.getConnection().getUniqueId(), e.getConnection().getName());
 
-                // Does the database already have a valid code for that client?
-                int code = this.dbUtils.getCode(e.getConnection().getUniqueId());
-
-                // No? Generate a new one and store it inside the database
-                if (code == -1) {
-                    code = TimeBasedOneTimePasswordUtil.generateCurrentNumber(generateSecret(e.getConnection().getUniqueId()), 6);
-
-                    this.dbUtils.setCode(e.getConnection().getUniqueId(), code);
+                boolean isInAlternateOtpMode = e.getConnection().getVirtualHost() != null &&
+                        e.getConnection().getVirtualHost().getHostName().equalsIgnoreCase("mc-alt.mc-auth.com");
+                String codeStr;
+                if (isInAlternateOtpMode) {
+                    codeStr = determineAlternateOtp(e.getConnection().getUniqueId());
+                } else {
+                    codeStr = determineOtp(e.getConnection().getUniqueId());
                 }
 
-                // Format the code to look like "### ###"
-                String codeStr = formatOTP(code);
-
-                // Kick the client and
                 e.setReason(TextComponent.fromLegacy(
                         ChatColor.translateAlternateColorCodes('&',
                                 Objects.requireNonNull(Settings.KICK_SUCCESS.getValueAsString())
@@ -112,6 +107,29 @@ public class McAuthBungee extends Plugin implements Listener {
 
             e.completeIntent(instance);
         });
+    }
+
+    private String determineOtp(UUID uuid) throws SQLException, GeneralSecurityException {
+        int code = this.dbUtils.getCode(uuid);
+        if (code == -1) {
+            code = TimeBasedOneTimePasswordUtil.generateCurrentNumber(generateSecret(uuid), 6);
+            this.dbUtils.setCode(uuid, code);
+        }
+
+        return formatOTP(code);
+    }
+
+    private String determineAlternateOtp(UUID uuid) throws SQLException, GeneralSecurityException {
+        String codePrefix = generateCodePrefix();
+        int code = TimeBasedOneTimePasswordUtil.generateCurrentNumber(generateSecret(uuid), 6);
+        this.dbUtils.setAlternateCode(uuid, codePrefix, code);
+
+        return codePrefix + " " + formatOTP(code);
+    }
+
+    private String generateCodePrefix() {
+        String letters = "ABCDEFGHJKMNOPQRSTUVWXYZ";
+        return String.valueOf(letters.charAt(new SecureRandom().nextInt(letters.length())));
     }
 
     /**

@@ -60,6 +60,19 @@ public class DatabaseUtils {
         }
     }
 
+    public void setAlternateCode(UUID uuid, String codePrefix, int code) throws SQLException {
+        try (PreparedStatement ps = getConnection()
+                .prepareStatement("INSERT INTO alternate_otps VALUES(?,?,?) ON CONFLICT(account) DO UPDATE SET (code_prefix,code,issued) = (?,?,CURRENT_TIMESTAMP);")) {
+            ps.setString(1, uuid.toString().replace("-", ""));
+            ps.setString(2, codePrefix);
+            ps.setInt(3, code);
+            ps.setString(4, codePrefix);
+            ps.setInt(5, code);
+
+            ps.executeUpdate();
+        }
+    }
+
     public boolean isValid() throws SQLException {
         return this.con != null && !this.con.isClosed() && this.con.isValid(3);
     }
