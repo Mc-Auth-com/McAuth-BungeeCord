@@ -85,7 +85,7 @@ public class McAuthBungee extends Plugin implements Listener {
                 String codeStr = formatOTP(code);
 
                 // Kick the client and
-                e.setCancelReason(TextComponent.fromLegacyText(
+                e.setReason(TextComponent.fromLegacy(
                         ChatColor.translateAlternateColorCodes('&',
                                 Objects.requireNonNull(Settings.KICK_SUCCESS.getValueAsString())
                                         .replace("${OTP}", codeStr)
@@ -101,7 +101,7 @@ public class McAuthBungee extends Plugin implements Listener {
                         " (" + e.getConnection().getUniqueId().toString() + ")");
 
                 // Notify the client about an error
-                e.setCancelReason(TextComponent.fromLegacyText(
+                e.setReason(TextComponent.fromLegacy(
                         ChatColor.translateAlternateColorCodes('&',
                                 Objects.requireNonNull(Settings.KICK_ERROR.getValueAsString())
                                         .replace("${Name}", e.getConnection().getName())
@@ -119,7 +119,6 @@ public class McAuthBungee extends Plugin implements Listener {
      * into {@code "### ###"} with leading zeros if needed
      *
      * @param num The number to format
-     *
      * @return The formatted number as a {@link String}, never null
      */
     private static @NotNull String formatOTP(long num) {
