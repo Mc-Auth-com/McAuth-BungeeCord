@@ -1,10 +1,7 @@
 name: ${pluginName}
-#description: Plugin description for ${pluginName}
 version: ${project.version}
-api-version: '1.13'
 
 main: ${groupId}.bungeecord.McAuthBungee
 
-author: Sprax2013
-authors: [ Sprax2013 ]
+author: SpraxDev
 website: https://Mc-Auth.com/
