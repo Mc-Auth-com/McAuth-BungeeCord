@@ -42,12 +42,12 @@ public class McAuthBungee extends Plugin implements Listener {
         }
 
         /* Init database and test connection */
-        dbUtils = new DatabaseUtils();
+        this.dbUtils = new DatabaseUtils();
 
         boolean validDbConnection = false;
         try {
-            dbUtils.getConnection();
-            validDbConnection = dbUtils.isValid();
+            this.dbUtils.getConnection();
+            validDbConnection = this.dbUtils.isValid();
         } catch (SQLException ex) {
             ex.printStackTrace();
         } finally {
@@ -66,19 +66,19 @@ public class McAuthBungee extends Plugin implements Listener {
         e.setCancelled(true);
         e.registerIntent(this);
 
-        pool.execute(() -> {
+        this.pool.execute(() -> {
             try {
                 // Update client in database
-                dbUtils.updateAccount(e.getConnection().getUniqueId(), e.getConnection().getName());
+                this.dbUtils.updateAccount(e.getConnection().getUniqueId(), e.getConnection().getName());
 
                 // Does the database already have a valid code for that client?
-                int code = dbUtils.getCode(e.getConnection().getUniqueId());
+                int code = this.dbUtils.getCode(e.getConnection().getUniqueId());
 
                 // No? Generate a new one and store it inside the database
                 if (code == -1) {
                     code = TimeBasedOneTimePasswordUtil.generateCurrentNumber(generateSecret(e.getConnection().getUniqueId()), 6);
 
-                    dbUtils.setCode(e.getConnection().getUniqueId(), code);
+                    this.dbUtils.setCode(e.getConnection().getUniqueId(), code);
                 }
 
                 // Format the code to look like "### ###"
@@ -124,8 +124,9 @@ public class McAuthBungee extends Plugin implements Listener {
     private static @NotNull String formatOTP(long num) {
         String numStr = Long.toString(num);
 
-        if (numStr.length() > 6)
+        if (numStr.length() > 6) {
             throw new IllegalArgumentException("Argument num may not consist of more than 6 digits");
+        }
 
         StringBuilder sb = new StringBuilder(7);
 
@@ -141,10 +142,10 @@ public class McAuthBungee extends Plugin implements Listener {
     }
 
     private String generateSecret(UUID uuid) throws NoSuchAlgorithmException {
-        if (sha256 == null) {
-            sha256 = MessageDigest.getInstance("SHA-256");
+        if (this.sha256 == null) {
+            this.sha256 = MessageDigest.getInstance("SHA-256");
         }
 
-        return BaseEncoding.base32().encode(sha256.digest((uuid.toString() + secretSalt).getBytes()));
+        return BaseEncoding.base32().encode(this.sha256.digest((uuid.toString() + this.secretSalt).getBytes()));
     }
 }
