@@ -1,3 +1,8 @@
+> [!WARNING]  
+> This project has been archived and replaced by [Mc-Auth-com/Velocity-Plugin](https://github.com/Mc-Auth-com/Velocity-Plugin)
+
+---
+
 <p align="center">
   <img alt="Mc-Auth Logo" width="128px" height="auto" src="https://mc-auth.com/assets/img/Logo.svg">
 </p>
